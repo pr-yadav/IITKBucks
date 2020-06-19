@@ -6,7 +6,8 @@ const app = express();
 const bodyParser = require('body-parser');
 const logger = require('morgan');
 const http = require('http');
-
+const prompt = require('prompt-sync')()
+const axios = require('axios')
 //Functions
 const byte_to_array = require('./functions/byte_to_array')
 const verify_sign = require('./functions/verify_sign')
@@ -64,7 +65,7 @@ app.use('/',newPeer)
 app.use('/',newBlock)
 
 
-main => {
+function main() {
     var peer = prompt("Enter the first peer : ")
     potential_peers.push(peer)
     for(var i=0;i<potential_peers.length;i++){
@@ -82,18 +83,20 @@ main => {
         })
         .catch((err) => {
             console.log("Error in sending request to : "+peer);
-            console.log(err);
+            //console.log(err);
         })
         if(urls.length >3)break;
     }
+    
     if(urls.length == 0){
-       console,log("No peers found")
+       console.log("No peers found")
        return;
     }
-    var i=0;
+    //var i=0;
     while(1){
-        axios.get (potential_peers[i]+'/'+i)
+        axios.get (potential_peers[0]+'/'+i)
         .then(response => {
+            while(1){
             var block = response.body
             if(response.statusCode==404)break;
             var no_of_txn = block.readUInt32BE(0,4)
@@ -106,6 +109,8 @@ main => {
                 tmp=tmp+4+len_of_txn
             }
             fs.writeFile('../mined_blocks'+n+'.dat',block);
+            n++;
+        }
         })
     }
     axios.get(potential_peers[i]+'/getPendingTransactions')
@@ -117,5 +122,6 @@ main => {
         console.log('Server running at http://'+hostname+':'+port);
     });
 }
+main()
 //transaction = byte_to_array(txn)
 
