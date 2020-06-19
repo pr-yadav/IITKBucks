@@ -12,7 +12,7 @@ const byte_to_array = require('./functions/byte_to_array')
 const verify_sign = require('./functions/verify_sign')
 const output_hash = require('./functions/addbloc')
 const verify = require('./functions/verify')
-
+const addbloc = require('./functions/addbloc')
 
 //Routes
 const getBlock = require('./routes/getBlock')
@@ -20,7 +20,8 @@ const getPendingTransactions = require('./routes/getPendingTransactions')
 const newPeer = require('./routes/newPeer')
 const getPeers = require('./routes/getPeers')
 const newBlock = require('./routes/newBlock')
-const newTransaction = require('./routes/newTransaction')
+const newTransaction = require('./routes/newTransaction');
+const { response } = require('express');
 
 
 //Imp. variables and constants
@@ -89,6 +90,29 @@ main => {
        console,log("No peers found")
        return;
     }
+    var i=0;
+    while(1){
+        axios.get (potential_peers[i]+'/'+i)
+        .then(response => {
+            var block = response.body
+            if(response.statusCode==404)break;
+            var no_of_txn = block.readUInt32BE(0,4)
+            var len_of_txn;
+            var tmp=4;
+            var txn;
+            for(var i=0;i<no_of_txn;i++){
+                len_of_txn=block.readUInt32BE(tmp,tmp+4)
+                txn = addbloc(block.slice(tmp+4,tmp+4+len_of_txn))
+                tmp=tmp+4+len_of_txn
+            }
+            fs.writeFile('../mined_blocks'+n+'.dat',block);
+        })
+    }
+    axios.get(potential_peers[i]+'/getPendingTransactions')
+    .then(response =>{
+        pending[addtxn(response.body)] = response.body
+
+    })
     server.listen(port , hostname,function(){
         console.log('Server running at http://'+hostname+':'+port);
     });
