@@ -73,7 +73,7 @@ function main() {
     potential_peers.push(peer)
     var block = JSON.stringify({url: "my url"})
     for(var i=0;i<potential_peers.length;i++){
-        axios.post (potential_peers[i],block)
+        axios.post (potential_peers[i]+"/newPeer",block)
         .then(response => {
            console.log("Request sent to : "+peer);
            console.log("Response status by peer : "+response.statusCode);
@@ -81,7 +81,11 @@ function main() {
                urls.push(potential_peers[i])
            }
            else{
-               potential_peers.push(response.body.peers)  //peers sent by user
+               axios.get(potential_peers[i]+'/getPeers')
+               .then(response => {
+
+                   potential_peers.push(response.body.peers);
+               })
            }
         })
         .catch((err) => {
