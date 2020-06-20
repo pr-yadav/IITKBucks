@@ -9,7 +9,7 @@ getPendingTransactions.use(bodyParser.urlencoded({ extended: false }));
 getPendingTransactions.route('/getPendingTransactions').get((req,res) => {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(pending))
+    res.end(JSON.stringify(raw_pending["data"]))
 })
 
 module.exports = getPendingTransactions;

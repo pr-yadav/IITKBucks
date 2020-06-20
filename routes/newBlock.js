@@ -25,9 +25,9 @@ newBlock.post('/newBlock',(req, res) => {
                     console.log(err);
                 })
        })
-       var no_of_txn = block.readUInt32BE(0,4)
+       var no_of_txn = block.readUInt32BE(116,120)
        var len_of_txn;
-       var tmp=4;
+       var tmp=120;
        var txn;
        for(var i=0;i<no_of_txn;i++){
             len_of_txn=block.readUInt32BE(tmp,tmp+4)
@@ -38,7 +38,7 @@ newBlock.post('/newBlock',(req, res) => {
         res.statusCode = 200
         res.setHeader('Content-Type', 'text/plain');
         res.end("Block added");
-
+        n++;
     }
     else{
         res.statusCode = 403

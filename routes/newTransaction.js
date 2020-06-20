@@ -8,7 +8,7 @@ const addtxn =require('../functions/addtxn')
 
 
 newTransaction.post('/newTransaction',(req, res) => {
-    pending[addtxn(req.body)] = req.body
+    addtxn(req.body);
     res.statusCode = 200
     res.setHeader('Content-Type', 'text/plain');
     res.send("Thanks")

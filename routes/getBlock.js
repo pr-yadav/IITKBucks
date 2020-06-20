@@ -4,7 +4,7 @@ const fs =require('fs')
 var getBlock = express.Router();
 getBlock.use(bodyParser.json());
 getBlock.use(bodyParser.urlencoded({ extended: false }));
-
+const index = require('../index')
 getBlock.route('/').all((req,res)=>{
     res.statusCode = 200;
     res.setHeader('Content-Type', 'text/plain');
@@ -13,13 +13,14 @@ getBlock.route('/').all((req,res)=>{
 
 
 getBlock.route('/getBlock/:n').get((req,res) => {
-    res.statusCode = 200;
-    try{
-        var data = fs.readFileSync("./mined_blocks/" + req.params.n + ".dat")
+    
+    if(req.params.n<= n){
+        res.statusCode = 200;
         res.setHeader('Content-Type', 'application/octet-stream');
         fs.createReadStream("./mined_blocks/"+req.params.n + ".dat").pipe(res)
     }
-    catch(err){
+    else{
+        res.statusCode =404;
         res.setHeader('Content-Type', 'text/plain');
         res.send("Chain is not that long")
     }

@@ -8,12 +8,15 @@ const logger = require('morgan');
 const http = require('http');
 const prompt = require('prompt-sync')()
 const axios = require('axios')
+
+
 //Functions
 const byte_to_array = require('./functions/byte_to_array')
 const verify_sign = require('./functions/verify_sign')
 const output_hash = require('./functions/addbloc')
 const verify = require('./functions/verify')
 const addbloc = require('./functions/addbloc')
+
 
 //Routes
 const getBlock = require('./routes/getBlock')
@@ -22,7 +25,7 @@ const newPeer = require('./routes/newPeer')
 const getPeers = require('./routes/getPeers')
 const newBlock = require('./routes/newBlock')
 const newTransaction = require('./routes/newTransaction');
-const { response } = require('express');
+const addtxn = require('./functions/addtxn');
 
 
 //Imp. variables and constants
@@ -43,7 +46,7 @@ unused = {}
 //     }
 // }
 
-
+raw_pending = { "data" : []}    //in same format as user input
 pending = {}
 // pending = {
 //     "Transaction_ID" : {
@@ -68,17 +71,17 @@ app.use('/',newBlock)
 function main() {
     var peer = prompt("Enter the first peer : ")
     potential_peers.push(peer)
+    var block = JSON.stringify({url: "my url"})
     for(var i=0;i<potential_peers.length;i++){
-        var block = JSON.stringify({url: potential_peers[i]})
         axios.post (potential_peers[i],block)
         .then(response => {
            console.log("Request sent to : "+peer);
            console.log("Response status by peer : "+response.statusCode);
            if(response.statusCode==200){
-               urls.push(response.body.url)
+               urls.push(potential_peers[i])
            }
            else{
-               potential_peers.push(response.body.peers)
+               potential_peers.push(response.body.peers)  //peers sent by user
            }
         })
         .catch((err) => {
@@ -88,20 +91,20 @@ function main() {
         if(urls.length >3)break;
     }
     
-    if(urls.length == 0){
-       console.log("No peers found")
-       return;
-    }
+    // if(urls.length == 0){
+    //    console.log("No peers found")
+    //    return;
+    // }
     //var i=0;
     while(1){
-        axios.get (potential_peers[0]+'/'+i)
+        axios.get (potential_peers[0]+'/getBlock'+n)
         .then(response => {
             while(1){
             var block = response.body
             if(response.statusCode==404)break;
-            var no_of_txn = block.readUInt32BE(0,4)
+            var no_of_txn = block.readUInt32BE(116,120) //block heaader is of 116 bytes
             var len_of_txn;
-            var tmp=4;
+            var tmp=120;
             var txn;
             for(var i=0;i<no_of_txn;i++){
                 len_of_txn=block.readUInt32BE(tmp,tmp+4)
@@ -113,9 +116,13 @@ function main() {
         }
         })
     }
-    axios.get(potential_peers[i]+'/getPendingTransactions')
+    axios.get(potential_peers[0]+'/getPendingTransactions')
     .then(response =>{
-        pending[addtxn(response.body)] = response.body
+        raw_pending["data"].push(response.body)
+        raw_pending["data"].forEach(element => {
+            addtxn(element);
+        });
+
 
     })
     server.listen(port , hostname,function(){

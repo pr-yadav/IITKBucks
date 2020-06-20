@@ -9,8 +9,8 @@ function isEmpty(obj){
  module.exports = function main(transaction){
     var index = require('../index')
     const sha256 = require('sha256')
-    txn_id=sha256(transaction)
-    var id,idx,sign_length,signature,coins,key_len,key,txn_id;
+    var txn_id=sha256(transaction)
+    var id,idx,sign_length,signature,coins,key_len,key;
     var no_of_inputs = transaction.readUInt32BE(0,4)
     var tmp=4;
     unused[txn_id] = {};   //addition of outputs to unused outputs
