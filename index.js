@@ -70,28 +70,39 @@ app.use('/',newBlock)
 
 function main() {
     var peer = prompt("Enter the first peer : ")
+    //console.log("hello")
     potential_peers.push(peer)
     var block = JSON.stringify({url: "my url"})
+    //console.log(potential_peers.length)
     for(var i=0;i<potential_peers.length;i++){
-        axios.post (potential_peers[i]+"/newPeer",block)
-        .then(response => {
-           console.log("Request sent to : "+peer);
-           console.log("Response status by peer : "+response.statusCode);
-           if(response.statusCode==200){
-               urls.push(potential_peers[i])
-           }
-           else{
-               axios.get(potential_peers[i]+'/getPeers')
-               .then(response => {
-
-                   potential_peers.push(response.body.peers);
-               })
-           }
+        console.log("hello")
+        const post = async _ => {
+        //setTimeout(() => {
+            console.log("hello")
+            axios.post (potential_peers[i]+"/newPeer",block)
+            .then(response => {
+                console.log("Request sent to : "+peer);
+                console.log("Response status by peer : "+response.statusCode);
+                if(response.statusCode==200){
+                    urls.push(potential_peers[i])
+                }
+                else{
+                    axios.get(potential_peers[i]+'/getPeers')
+                    .then(response => {
+                       potential_peers.push(response.body.peers);
+                    })
+                }
+                return response.statusCode;
+            })
+            .catch((err) => {
+                console.log("Error in sending request to : "+peer);
+                //console.log(err);
+            })
+        }
+        post().then(value =>{
+            console.log(value)
         })
-        .catch((err) => {
-            console.log("Error in sending request to : "+peer);
-            //console.log(err);
-        })
+            //}, 0)
         if(urls.length >3)break;
     }
     
@@ -101,6 +112,9 @@ function main() {
     // }
     //var i=0;
     while(1){
+        setTimeout(() => {
+            
+        
         axios.get (potential_peers[0]+'/getBlock'+n)
         .then(response => {
             while(1){
@@ -119,6 +133,7 @@ function main() {
             n++;
         }
         })
+    }, 1000);
     }
     axios.get(potential_peers[0]+'/getPendingTransactions')
     .then(response =>{
@@ -133,6 +148,7 @@ function main() {
         console.log('Server running at http://'+hostname+':'+port);
     });
 }
+
 main()
 //transaction = byte_to_array(txn)
 
