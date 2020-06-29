@@ -1,4 +1,4 @@
-///This is just a basic model for hoe unused outputs may look
+///This is just a basic model for ho unused outputs may look
 // unused = {
 //     "Transaction_ID" : {
 //         "Index" : {
@@ -8,7 +8,7 @@
 //     }
 // }
 
-module.exports = function verify(txn) {
+module.exports = function verify(transaction) {
     const byte_to_array = require('./functions/byte_to_array')
     const verify_sign = require('./functions/verify_sign')
     const output_hash = require('./functions/output_hash')
