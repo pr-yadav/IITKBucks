@@ -12,9 +12,9 @@ newBlock.use(bodyParser.urlencoded({ extended: false }));
 
 
 newBlock.post('/newBlock',(req, res) => {
-    miner.terminate();    //stops miner
     var block = req.body;
     if(verify_block(req.body)){
+        miner.terminate();    //stops miner
         urls.forEach(url => {
             axios.post (url,block)
                 .then(response => {
