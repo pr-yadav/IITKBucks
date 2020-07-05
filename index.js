@@ -70,12 +70,7 @@ app.use('/',newPeer)
 app.use('/',newBlock)
 
 
-miner.onMessage('message',msg =>{
-    var tmp =n+1;
-    fs.writeFile('./mined_blocks/'+(tmp)+'.dat')
-    n++;
-    addbloc(msg);
-})
+
 function main() {
     var peer = prompt("Enter the first peer : ")
     //console.log("hello")
@@ -161,6 +156,13 @@ main();
 start_miner();
 function start_miner(){
     miner.postMessage("start");
+    miner.onMessage('message',msg =>{
+        var tmp =n+1;
+        fs.writeFile('./mined_blocks/'+(tmp)+'.dat')
+        n++;
+        addbloc(msg);
+        start_miner();
+    })
 }
 //transaction = byte_to_array(txn)
 
