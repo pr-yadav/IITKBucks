@@ -12,6 +12,7 @@ newBlock.use(bodyParser.urlencoded({ extended: false }));
 
 
 newBlock.post('/newBlock',(req, res) => {
+    miner.terminate();    //stops miner
     var block = req.body;
     if(verify_block(req.body)){
         urls.forEach(url => {
@@ -45,6 +46,7 @@ newBlock.post('/newBlock',(req, res) => {
         res.setHeader('Content-Type', 'text/plain');
         res.end("Invalid Block");
     }
+    miner.postMessage("start");
 })
 
 module.exports = newPeer

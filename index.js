@@ -8,6 +8,7 @@ const logger = require('morgan');
 const http = require('http');
 const prompt = require('prompt-sync')()
 const axios = require('axios')
+const { Worker, parentPort } = require('worker_threads');
 
 
 //Functions
@@ -29,6 +30,7 @@ const addtxn = require('./functions/addtxn');
 
 
 //Imp. variables and constants
+miner = new Worker('./miner.js')
 const hostname = 'localhost';
 const port = 3001
 const server=http.createServer(app);
@@ -50,13 +52,13 @@ raw_pending = { "data" : []}    //in same format as user input
 pending = {}
 // pending = {
 //     "Transaction_ID" : {
-//         txn
+//         txn(binary datpending)
 //     }
 // }
 n=0 //The index of block
 urls = [] //The urls of peers
 potential_peers = []
-
+target=0x00FF 
 
 app.use(bodyParser.json());
 app.use(logger('dev'));
@@ -149,6 +151,10 @@ function main() {
     });
 }
 
-main()
+main();
+start_miner();
+function start_miner(){
+    miner.postMessage("start");
+}
 //transaction = byte_to_array(txn)
 
