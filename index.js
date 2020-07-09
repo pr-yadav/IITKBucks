@@ -161,6 +161,13 @@ function start_miner(){
         fs.writeFile('./mined_blocks/'+(tmp)+'.dat')
         n++;
         addbloc(msg);
+        for(url in urls){
+            axios.post(url,msg)
+            .then(function (response) {
+                console.log(response);
+            })
+        }
+        
         start_miner();
     })
 }
