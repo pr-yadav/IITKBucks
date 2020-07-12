@@ -23,7 +23,8 @@ addAlias.post('/addAlias',(req, res) => {
                          console.log(err);
                      })
             })
-            map.set(alias,key);
+            users.set(alias,key);
+            wallet.set(key,[])
             res.statusCode = 200
             res.setHeader('Content-Type', 'text/plain');
             res.send('User added');

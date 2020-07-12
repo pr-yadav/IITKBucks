@@ -14,6 +14,7 @@ function isEmpty(obj){
     var no_of_inputs = transaction.readUInt32BE(0,4)
     var tmp=4;
     unused[txn_id] = {};   //addition of outputs to unused outputs
+    //wallet.set(txn_id,{});
     for(var i=0;i<no_of_inputs;i++){
         id = transaction.toString("hex", 0+tmp, tmp +32)
         idx = transaction.readUInt32BE(tmp+32,tmp+36)
@@ -32,6 +33,9 @@ function isEmpty(obj){
         unused[txn_id][i] = {};    //addition of outputs to unused outputs
         unused[txn_id][i]["PublicKey"] = key;
         unused[txn_id][i]["coins"] = coins;
+        wallet[key].push({transactionId:txn_id,
+            index:i+1,
+            amount:coins})
         tmp=tmp+12+key_len
     }
     
