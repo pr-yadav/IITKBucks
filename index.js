@@ -17,7 +17,7 @@ const verify_sign = require('./functions/verify_sign')
 const output_hash = require('./functions/addbloc')
 const verify = require('./functions/verify')
 const addbloc = require('./functions/addbloc')
-
+const addtxn = require('./functions/addtxn')
 
 //Routes
 const getBlock = require('./routes/getBlock')
@@ -26,7 +26,9 @@ const newPeer = require('./routes/newPeer')
 const getPeers = require('./routes/getPeers')
 const newBlock = require('./routes/newBlock')
 const newTransaction = require('./routes/newTransaction');
-const addtxn = require('./functions/addtxn');
+const addAlias = require('./routes/addAlias')
+const getPublicKey = require('./routes/getPublicKey')
+const getUnusedOutputs = require('./routes/getUnusedOutputs');
 
 
 //Imp. variables and constants
@@ -59,6 +61,8 @@ n=0 //The index of block
 urls = [] //The urls of peers
 potential_peers = []
 target=0x00FF 
+users = new Map()
+wallet = new Map()
 
 app.use(bodyParser.json());
 app.use(logger('dev'));
@@ -68,6 +72,9 @@ app.use('/', getBlock);
 app.use('/',getPendingTransactions)
 app.use('/',newPeer)
 app.use('/',newBlock)
+app.use('/',addAlias)
+app.use('/',getPublicKey)
+app.use('/',getUnusedOutputs)
 
 
 
