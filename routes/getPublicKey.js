@@ -12,7 +12,8 @@ getPublicKey.route('/getPublicKey')
         res.statusCode = 200
         res.setHeader('Content-Type', 'application/json');
         var obj = new Object()
-        obj["publicKey"] = users.get[alias];
+        obj["publicKey"] = users.get(alias);
+        //console.log(users.get(alias));
         res.send(JSON.stringify(obj));
     }
     else {

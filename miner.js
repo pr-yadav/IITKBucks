@@ -1,11 +1,11 @@
-
 const fs = require('fs')
 const index = require('./index');
 const sha256 = require('sha256');
-const { Worker, parentPort } = require('worker_threads');
-parentPort.onMessage('message',msg =>{
-
-
+const { Worker, parentPort,MessageChannel } = require('worker_threads');
+//const {port1}=new MessageChannel();
+//console.log("hello")
+parentPort.on('message',msg =>{
+//console.log("hello")
 while(Object.entries(pending).length === 0){
 
 }

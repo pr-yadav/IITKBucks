@@ -28,6 +28,7 @@ addAlias.post('/addAlias',(req, res) => {
             res.statusCode = 200
             res.setHeader('Content-Type', 'text/plain');
             res.send('User added');
+            console.log(users)
         }
         else {
             res.statusCode = 400

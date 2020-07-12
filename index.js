@@ -8,7 +8,7 @@ const logger = require('morgan');
 const http = require('http');
 const prompt = require('prompt-sync')()
 const axios = require('axios')
-const { Worker, parentPort } = require('worker_threads');
+const { Worker, parentPort,MessageChannel } = require('worker_threads');
 
 
 //Functions
@@ -33,8 +33,9 @@ const getUnusedOutputs = require('./routes/getUnusedOutputs');
 
 //Imp. variables and constants
 miner = new Worker('./miner.js')
+//port1 = new MessageChannel();
 const hostname = 'localhost';
-const port = 3001
+const port = 3000
 const server=http.createServer(app);
 unused = {}
 // unused = {
@@ -159,8 +160,8 @@ function main() {
     });
 }
 
-main();
-start_miner();
+//main();
+//start_miner();
 function start_miner(){
     miner.postMessage("start");
     miner.onMessage('message',msg =>{
@@ -179,4 +180,8 @@ function start_miner(){
     })
 }
 //transaction = byte_to_array(txn)
+server.listen(port , hostname,function(){
+    //console.log("hello")
+    console.log('Server running at http://'+hostname+':'+port);
+});
 

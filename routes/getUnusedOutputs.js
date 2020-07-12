@@ -5,7 +5,7 @@ var getUnuseOutputs = express.Router();
 getUnuseOutputs.use(bodyParser.json());
 getUnuseOutputs.use(bodyParser.urlencoded({ extended: false }));
 
-getUnuseOutputs.route('/getUnuseOutputs')
+getUnuseOutputs.route('/getUnusedOutputs')
 .post((req,res)=>{
     var alias = req.body.alias;
     var key =req.body.publicKey
