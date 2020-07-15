@@ -28,6 +28,7 @@ const newTransaction = require('./routes/newTransaction');
 const addAlias = require('./routes/addAlias')
 const getPublicKey = require('./routes/getPublicKey')
 const getUnusedOutputs = require('./routes/getUnusedOutputs');
+const { async } = require('q');
 
 
 //Imp. variables and constants
@@ -78,15 +79,18 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-function main() {
+async function getpeers() {
     var peer = prompt("Enter the first peer : ")
     potential_peers.push(peer)
+    //console.log("hello")
+    //return true;
     var block = JSON.stringify({url: "http://987a5160bea7.ngrok.io"})
-    for(const users of potential_peers){
-            axios.post (users+"newPeer",block)
+    for(var person of potential_peers){
+        //console.log("hello")
+            axios.post (person+"newPeer",block)
             .then(response => {
-                //console.log(response)
-                console.log("Request sent to : "+users);
+                //console.log("hello")
+                console.log("Request sent to : "+person);
                 console.log("Response status by peer : "+response.status);
                 if(response.status==200){
                     console.log(users)
@@ -101,26 +105,26 @@ function main() {
             })
             .catch((err) => {
                 console.log("Error in sending request to : "+peer);
-                console.log(err);
+                //console.log(err);
             })
         
         
-        if(urls.length >3)break;
+        if(urls.length >3){return urls.length;}
     }
-    if(urls.length == 0){
-       console.log("No peers found")
-       return;
-    }
+    return
+    
+}
     //var i=0;
+async function getblocks(){
+    //console.log("hello")
+    //return true;
     while(1){
-        setTimeout(() => {
         axios.get (urls[0]+'/getBlock/'+n)
         .then(response => {
-            while(1){
             var block = response.body
             if(response.statusCode==404){
                 console.log("All Blocks found");
-                break;
+                return;
             }
             var no_of_txn = block.readUInt32BE(116,120) //block heaader is of 116 bytes
             var len_of_txn;
@@ -133,26 +137,40 @@ function main() {
             }
             fs.writeFile('../mined_blocks'+n+'.dat',block);
             n++;
-        }
         })
-    }, 3000);
     }
+    return;
+}
+async function obtaintxns(){
+    //console.log("hello")
     axios.get(potential_peers[0]+'/getPendingTransactions')
     .then(response =>{
         raw_pending["data"].push(response.body)
-        raw_pending["data"].forEach(element => {
-            addtxn(element);
-        });
+        for(var txns in response){
+            addtxn(txns)
+        }
 
-
+    })
+    .catch((err) => {
+        console.log(err)
     })
     server.listen(port , hostname,function(){
         console.log('Server running at http://'+hostname+':'+port);
     });
 }
-
-main();
+async function main(){
+    var lenofusers=await getpeers();
+    if(lenofusers==0){
+        console.log("no peers found");
+        return;
+    }
+    else{
+        var obtainblocks = await getblocks();
+        obtaintxns();
+    }
+}
 //start_miner();
+main()
 function start_miner(){
 
     miner.postMessage(pending);
