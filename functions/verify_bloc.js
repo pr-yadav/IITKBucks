@@ -1,4 +1,3 @@
-const { verify } = require("crypto");
 
 module.exports = (block) => {
     const fs = require('fs');

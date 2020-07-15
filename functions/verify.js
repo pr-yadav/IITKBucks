@@ -7,19 +7,28 @@
 //         }
 //     }
 // }
+function IntToBytes (num,bits){
+    if(bits==4){
+        var buf = Buffer.alloc(4);
+        buf.writeInt32BE(num);
+    }
+    else{
+        var buf =Buffer.alloc(8)
+        num = BigInt(num)
+        buf.writeBigInt64BE(num)
+    }
+    return buf
+}
 
 module.exports = function verify(transaction) {
     const index = require('../index')
     const byte_to_array = require('./functions/byte_to_array')
     const verify_sign = require('./functions/verify_sign')
     const output_hash = require('./functions/output_hash')
-    var no_inputs = transaction.no_inputs;
-    var inputs = transaction.inputs;
-    var no_outputs = transaction.no_outputs;
-    var outputs = transaction.outputs;
+    const newtxnoutputhash=require('./newtxnoutputhash')
     if(n==0)return true;
-    for (var i = 0; i < no_inputs; i++) {
-        var tmp = inputs[i].Transaction_ID
+    for (var input in transaction["inputs"]) {
+        var tmp = input["transaction_Id"]
         if (tmp in unused){
             if(inputs[i].Index in unused[tmp]) continue;
             else return false;
@@ -31,29 +40,25 @@ module.exports = function verify(transaction) {
   
     var req_coins = 0;
     var act_coins = 0;
-    for (var i = 0; i < no_inputs; i++) {
-        var tmp = inputs[i].Transaction_ID
-        var tmp2 = unused[tmp]
-        act_coins += tmp2.Index.coins;
+    for (var input in transaction["inputs"]) {
+        var tmp2 = unused[inputs[i]["transactionId"]][inputs[i]["index"]]["publicKey"]
+        act_coins += tmp2;
     }
-    for (var i = 0; i < no_outputs; i++) {
-        req_coins += outputs[i].coins;
+    for (var output in transaction["outputs"]) {
+        req_coins += output["amount"];
     }
     if (act_coins >= req_coins){}
     else {
         return false;
     }
 
-
    
-    for (var i = 0; i < no_inputs; i++) {
-        var msg = Buffer.alloc(4)
-        msg.writeInt32BE(inputs[i].Index)
-        msg = Buffer.concat([Buffer.from(inputs[i].Transaction_ID,'hex'),msg,Buffer.from(output_hash(txn),'hex')])
+    for (var input in transaction["inputs"]) {
+        var msg = Buffer.alloc(0)
+        msg = Buffer.concat([Buffer.from(input.transaction_Id,'hex'),IntToBytes(input.index,4),Buffer.from(newtxnoutputhash(txn),'hex')])
         var public = unused.inputs[i].Transaction_ID.Index.public_key;
-        var sign = inputs[i].Signature
+        var sign = Buffer.from(unused[input["transactionId"]][input["index"]]["Publickey"],'hex')
         if(verify_sign(sign,msg,public)){
-            continue;
         }
         else {
             return false;

@@ -6,7 +6,7 @@ const newPeer = require('./newPeer')
 const index = require('../index')
 const addbloc = require('../functions/Output_Hash')
 var newBlock = express.Router();
-
+const verify_block=require('../functions/verify_bloc')
 newBlock.use(bodyParser.json());
 newBlock.use(bodyParser.urlencoded({ extended: false }));
 

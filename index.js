@@ -9,7 +9,7 @@ const http = require('http');
 const prompt = require('prompt-sync')()
 const axios = require('axios')
 const { Worker, parentPort,MessageChannel,isMainThread } = require('worker_threads');
-
+const Promise= require('promise');
 //Functions
 const byte_to_array = require('./functions/byte_to_array')
 const verify_sign = require('./functions/verify_sign')
@@ -49,7 +49,7 @@ unused = {}
 //     }
 // }
 
-raw_pending = { "data" : []}    //in same format as user input
+raw_pending = {"data" : []}    //in same format as user input
 pending = {}
 // pending = {
 //     "Transaction_ID" : {
@@ -74,42 +74,39 @@ app.use('/',addAlias)
 app.use('/',getPublicKey)
 app.use('/',getUnusedOutputs)
 
-
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 
 function main() {
     var peer = prompt("Enter the first peer : ")
     potential_peers.push(peer)
     var block = JSON.stringify({url: "http://987a5160bea7.ngrok.io"})
-    for(var i=0;i<potential_peers.length;i++){
-        setTimeout(() => {
-        const post = async _ => {
-            axios.post (potential_peers[i]+"/newPeer",block)
+    for(const users of potential_peers){
+            axios.post (users+"newPeer",block)
             .then(response => {
-                console.log("Request sent to : "+peer);
-                console.log("Response status by peer : "+response.statusCode);
-                if(response.statusCode==200){
-                    urls.push(potential_peers[i])
+                //console.log(response)
+                console.log("Request sent to : "+users);
+                console.log("Response status by peer : "+response.status);
+                if(response.status==200){
+                    console.log(users)
+                    urls.push(users)
                 }
                 else{
-                    axios.get(potential_peers[i]+'/getPeers')
+                    axios.get(users+'/getPeers')
                     .then(response => {
                        potential_peers.push(response.body.peers);
                     })
                 }
-                return response.statusCode;
             })
             .catch((err) => {
                 console.log("Error in sending request to : "+peer);
-                //console.log(err);
+                console.log(err);
             })
-        }
-        post().then(value =>{
-            console.log(value)
-        })
-        }, 1000)
+        
+        
         if(urls.length >3)break;
     }
-    
     if(urls.length == 0){
        console.log("No peers found")
        return;
@@ -117,7 +114,7 @@ function main() {
     //var i=0;
     while(1){
         setTimeout(() => {
-        axios.get (potential_peers[0]+'/getBlock'+n)
+        axios.get (urls[0]+'/getBlock/'+n)
         .then(response => {
             while(1){
             var block = response.body
@@ -154,8 +151,8 @@ function main() {
     });
 }
 
-//main();
-start_miner();
+main();
+//start_miner();
 function start_miner(){
 
     miner.postMessage(pending);
@@ -181,7 +178,3 @@ function start_miner(){
         start_miner();
     })
 }
-server.listen(port , hostname,function(){
-    console.log('Server running at http://'+hostname+':'+port);
-});
-

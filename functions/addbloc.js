@@ -14,13 +14,14 @@ function isEmpty(obj){
     var no_of_inputs = transaction.readUInt32BE(0,4)
     var tmp=4;
     unused[txn_id] = {};   //addition of outputs to unused outputs
-    //wallet.set(txn_id,{});
+    wallet.set(key,[])
     for(var i=0;i<no_of_inputs;i++){
         id = transaction.toString("hex", 0+tmp, tmp +32)
         idx = transaction.readUInt32BE(tmp+32,tmp+36)
         sign_length = transaction.readUInt32BE(tmp+36,tmp+40)
         signature = transaction.toString("hex", 40+tmp, tmp +40 + sign_length)
         tmp=tmp+40+sign_length
+        wallet.set(unused[id][idx]["PublicKey"],[])
         delete unused[id][idx]   //removal from list of unused outputs
     }
     

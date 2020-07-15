@@ -18,12 +18,13 @@ module.exports = function main(txn){
     const sha256 = require('sha256')
     var transaction = Buffer.alloc(0)
     var no_of_inputs = txn["inputs"].length
+    raw_pending["data"].push(txn);
     var Inputs = [];
     var Outputs = [];
     transaction=Buffer.concat([transaction,IntToBytes( no_of_inputs,4)])
     var id ,idx,sign,sign_len,coins,public,public_len;
     for(var i=0;i<no_of_inputs;i++){
-        id=txn["inputs"][i]["transactionID"];
+        id=txn["inputs"][i]["transactionId"];
         idx = txn["inputs"][i]["index"];
         sign_len = Buffer.byteLength(txn["inputs"][i]["signature"], 'hex');
         sign = txn["inputs"][i]["signature"];
@@ -40,13 +41,6 @@ module.exports = function main(txn){
         public=txn["outputs"][i]["recipeint"];
         Outputs[i]=new output(coins,public_len,public)
     }
-    raw_pending[sha256(transaction)]={
-        "No. of Inputs" : no_of_inputs,
-        "Inputs" : Inputs,
-        "No. of Outputs" : no_of_outputs,
-        "Outputs" :Outputs
-    }
-    pending[sha256(transaction)]=transaction;
-    
-    return sha256(transaction)
+    pending[sha256(transaction)]=transaction;    
+    return transaction
 }
