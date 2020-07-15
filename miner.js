@@ -1,13 +1,10 @@
 const fs = require('fs')
-const index = require('./index');
 const sha256 = require('sha256');
 const { Worker, parentPort,MessageChannel } = require('worker_threads');
-//const {port1}=new MessageChannel();
-//console.log("hello")
-parentPort.on('message',msg =>{
-//console.log("hello")
+const now = require('nano-time');
+parentPort.on('message',pending =>{
 while(Object.entries(pending).length === 0){
-
+    console.log(pending)
 }
 
 function IntToBytes (num,bits){
@@ -38,7 +35,7 @@ for(var txnid in pending){
 block = Buffer.concat([IntToBytes(i,4),block]);
 var block_head =Buffer.alloc(0);
 var parent_hash = fs.readFileSync('./mined_blocks/'+n+'.dat');
-
+parent_hash=sha256(parent_hash.slice(0,116))
 block_head=Buffer.concat([block_head,IntToBytes(n+1,4),parent_hash,sha256(block),Buffer.from(target,"hex")]);
 
 var result1=Buffer.alloc(0)
@@ -59,7 +56,7 @@ while(1){
 }
 
 function mined(){
-    block=Buffer.concat(result1,block);
+    block=Buffer.concat([[block_head,IntToBytes(time,8),IntToBytes(i,8)],block]);
     console.log(block);
     parentPort.postMessage(block);
     //more features to be added later

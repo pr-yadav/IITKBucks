@@ -29,10 +29,9 @@ newBlock.post('/newBlock',(req, res) => {
        var no_of_txn = block.readUInt32BE(116,120)
        var len_of_txn;
        var tmp=120;
-       var txn;
        for(var i=0;i<no_of_txn;i++){
             len_of_txn=block.readUInt32BE(tmp,tmp+4)
-            txn = addbloc(block.slice(tmp+4,tmp+4+len_of_txn))
+            addbloc(block.slice(tmp+4,tmp+4+len_of_txn))
             tmp=tmp+4+len_of_txn
        }
         fs.writeFile('../mined_blocks'+n+'.dat',block);

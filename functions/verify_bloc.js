@@ -12,7 +12,7 @@ module.exports = (block) => {
     tmp=120;
     for(var i =0;i<NoOfTransaction;i++){
         LenOfTransaction = block.readUInt32BE(tmp,tmp+4);
-        txn = byte_to_array(block.splice(tmp+4,tmp+4+LenOfTransaction));
+        txn = byte_to_array(block.slice(tmp+4,tmp+4+LenOfTransaction));
         tmp = tmp +4 + LenOfTransaction;
         if(verify(txn) == false) return false;
     }

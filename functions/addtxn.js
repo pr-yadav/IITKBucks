@@ -40,12 +40,13 @@ module.exports = function main(txn){
         public=txn["outputs"][i]["recipeint"];
         Outputs[i]=new output(coins,public_len,public)
     }
-    pending[sha256(transaction)]={
+    raw_pending[sha256(transaction)]={
         "No. of Inputs" : no_of_inputs,
         "Inputs" : Inputs,
         "No. of Outputs" : no_of_outputs,
         "Outputs" :Outputs
     }
+    pending[sha256(transaction)]=transaction;
     
     return sha256(transaction)
 }

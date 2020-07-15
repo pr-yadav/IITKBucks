@@ -9,6 +9,7 @@
 // }
 
 module.exports = function verify(transaction) {
+    const index = require('../index')
     const byte_to_array = require('./functions/byte_to_array')
     const verify_sign = require('./functions/verify_sign')
     const output_hash = require('./functions/output_hash')
@@ -16,6 +17,7 @@ module.exports = function verify(transaction) {
     var inputs = transaction.inputs;
     var no_outputs = transaction.no_outputs;
     var outputs = transaction.outputs;
+    if(n==0)return true;
     for (var i = 0; i < no_inputs; i++) {
         var tmp = inputs[i].Transaction_ID
         if (tmp in unused){

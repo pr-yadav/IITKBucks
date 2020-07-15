@@ -8,8 +8,7 @@ const logger = require('morgan');
 const http = require('http');
 const prompt = require('prompt-sync')()
 const axios = require('axios')
-const { Worker, parentPort,MessageChannel } = require('worker_threads');
-
+const { Worker, parentPort,MessageChannel,isMainThread } = require('worker_threads');
 
 //Functions
 const byte_to_array = require('./functions/byte_to_array')
@@ -32,8 +31,7 @@ const getUnusedOutputs = require('./routes/getUnusedOutputs');
 
 
 //Imp. variables and constants
-miner = new Worker('./miner.js')
-//port1 = new MessageChannel();
+miner = new Worker('./miner.js',resourceLimits=1024)
 const hostname = 'localhost';
 const port = 3000
 const server=http.createServer(app);
@@ -55,16 +53,15 @@ raw_pending = { "data" : []}    //in same format as user input
 pending = {}
 // pending = {
 //     "Transaction_ID" : {
-//         txn(binary datpending)
+//         txn(binary datapending)
 //     }
 // }
 n=0 //The index of block
 urls = [] //The urls of peers
 potential_peers = []
-target=0x00FF 
+target=0x00000f0000000000000000000000000000000000000000000000000000000000
 users = new Map()
 wallet = new Map()
-
 app.use(bodyParser.json());
 app.use(logger('dev'));
 app.use('/',newTransaction)
@@ -81,15 +78,11 @@ app.use('/',getUnusedOutputs)
 
 function main() {
     var peer = prompt("Enter the first peer : ")
-    //console.log("hello")
     potential_peers.push(peer)
-    var block = JSON.stringify({url: "my url"})
-    //console.log(potential_peers.length)
+    var block = JSON.stringify({url: "http://987a5160bea7.ngrok.io"})
     for(var i=0;i<potential_peers.length;i++){
-        console.log("hello")
+        setTimeout(() => {
         const post = async _ => {
-        //setTimeout(() => {
-            console.log("hello")
             axios.post (potential_peers[i]+"/newPeer",block)
             .then(response => {
                 console.log("Request sent to : "+peer);
@@ -113,24 +106,25 @@ function main() {
         post().then(value =>{
             console.log(value)
         })
-            //}, 0)
+        }, 1000)
         if(urls.length >3)break;
     }
     
-    // if(urls.length == 0){
-    //    console.log("No peers found")
-    //    return;
-    // }
+    if(urls.length == 0){
+       console.log("No peers found")
+       return;
+    }
     //var i=0;
     while(1){
         setTimeout(() => {
-            
-        
         axios.get (potential_peers[0]+'/getBlock'+n)
         .then(response => {
             while(1){
             var block = response.body
-            if(response.statusCode==404)break;
+            if(response.statusCode==404){
+                console.log("All Blocks found");
+                break;
+            }
             var no_of_txn = block.readUInt32BE(116,120) //block heaader is of 116 bytes
             var len_of_txn;
             var tmp=120;
@@ -144,7 +138,7 @@ function main() {
             n++;
         }
         })
-    }, 1000);
+    }, 3000);
     }
     axios.get(potential_peers[0]+'/getPendingTransactions')
     .then(response =>{
@@ -161,14 +155,22 @@ function main() {
 }
 
 //main();
-//start_miner();
+start_miner();
 function start_miner(){
-    miner.postMessage("start");
-    miner.onMessage('message',msg =>{
+
+    miner.postMessage(pending);
+    miner.on('message',msg =>{
         var tmp =n+1;
-        fs.writeFile('./mined_blocks/'+(tmp)+'.dat')
+        fs.writeFile('./mined_blocks/'+(tmp)+'.dat',msg)
         n++;
-        addbloc(msg);
+        var no_of_txn = msg.readUInt32BE(116,120)
+        var len_of_txn;
+        var tmp=120;
+        for(var i=0;i<no_of_txn;i++){
+            len_of_txn=msg.readUInt32BE(tmp,tmp+4)
+            addbloc(msg.slice(tmp+4,tmp+4+len_of_txn))
+            tmp=tmp+4+len_of_txn
+        }
         for(url in urls){
             axios.post(url,msg)
             .then(function (response) {
@@ -179,9 +181,7 @@ function start_miner(){
         start_miner();
     })
 }
-//transaction = byte_to_array(txn)
 server.listen(port , hostname,function(){
-    //console.log("hello")
     console.log('Server running at http://'+hostname+':'+port);
 });
 
