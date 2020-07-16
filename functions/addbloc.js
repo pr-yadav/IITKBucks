@@ -28,12 +28,12 @@ function isEmpty(obj){
     var no_of_outputs = transaction.readUInt32BE(tmp,tmp+4)
     tmp=tmp+4;
     for(var i=0;i<no_of_outputs;i++){
-        coins = parseInt(transaction.toString("hex",tmp,tmp+8),16)
+        coins = parseInt(transaction.toString("hex",tmp,tmp+8),16) + ""
         key_len = transaction.readUInt32BE(tmp+8,tmp+12)
         key = transaction.toString("utf8", tmp+12, tmp +12 + key_len)
         unused[txn_id][i] = {};    //addition of outputs to unused outputs
         unused[txn_id][i]["PublicKey"] = key;
-        unused[txn_id][i]["coins"] = coins;
+        unused[txn_id][i]["coins"] = coins+"";
         wallet[key].push({transactionId:txn_id,
             index:i+1,
             amount:coins})

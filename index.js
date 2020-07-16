@@ -79,7 +79,7 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-async function getpeers() {
+function getpeers() {
     var peer = prompt("Enter the first peer : ")
     potential_peers.push(peer)
     //console.log("hello")
@@ -87,14 +87,14 @@ async function getpeers() {
     var block = JSON.stringify({url: "http://987a5160bea7.ngrok.io"})
     for(var person of potential_peers){
         //console.log("hello")
-            axios.post (person+"newPeer",block)
+            axios.post (person+"/newPeer",block)
             .then(response => {
                 //console.log("hello")
                 console.log("Request sent to : "+person);
                 console.log("Response status by peer : "+response.status);
                 if(response.status==200){
-                    console.log(users)
-                    urls.push(users)
+                    //console.log(person)
+                    urls.push(person)
                 }
                 else{
                     axios.get(users+'/getPeers')
@@ -108,66 +108,90 @@ async function getpeers() {
                 //console.log(err);
             })
         
-        
+            //console.log("hello")
         if(urls.length >3){return urls.length;}
     }
-    return
+    return urls.length
     
 }
     //var i=0;
-async function getblocks(){
-    //console.log("hello")
+    function myLoop() {         //  create a loop function
+        setTimeout(function() {   //  call a 3s setTimeout when the loop is called
+          var i =getblocks();   //  your code here
+          //i++;                    //  increment the counter
+          if (i) {           //  if the counter < 10, call the loop function
+            myLoop();             //  ..  again which will trigger another 
+          }                       //  ..  setTimeout()
+        }, 2000)
+      }
+function getblocks(){
+    
     //return true;
-    while(1){
+    //while(1){
         axios.get (urls[0]+'/getBlock/'+n)
         .then(response => {
-            var block = response.body
-            if(response.statusCode==404){
+            //var block=new Buffer
+            var block = response.data
+            if(response.status==404){
                 console.log("All Blocks found");
-                return;
+                return 0;
             }
-            var no_of_txn = block.readUInt32BE(116,120) //block heaader is of 116 bytes
+            fs.writeFileSyc('../mined_blocks'+n+'.dat',response.data);
+            var tmp=116;
+            var no_of_txn = parseInt(block.toString("hex",tmp,tmp+5),16) //block heaader is of 116 bytes
             var len_of_txn;
-            var tmp=120;
+            tmp=120;
             var txn;
             for(var i=0;i<no_of_txn;i++){
                 len_of_txn=block.readUInt32BE(tmp,tmp+4)
                 txn = addbloc(block.slice(tmp+4,tmp+4+len_of_txn))
                 tmp=tmp+4+len_of_txn
             }
-            fs.writeFile('../mined_blocks'+n+'.dat',block);
+            
             n++;
         })
-    }
-    return;
+        .catch(err =>{
+            console.log("All Blocks Found");
+            return 0;
+        })
+    //}
+    return n;
 }
-async function obtaintxns(){
+function obtaintxns(){
     //console.log("hello")
     axios.get(potential_peers[0]+'/getPendingTransactions')
     .then(response =>{
+        console.log("Obtaining Pending Transactions")
         raw_pending["data"].push(response.body)
-        for(var txns in response){
+        for(var txns in response.body){
             addtxn(txns)
         }
+        //console.log(response.body)
 
     })
     .catch((err) => {
         console.log(err)
     })
+    setTimeout(() => {
     server.listen(port , hostname,function(){
         console.log('Server running at http://'+hostname+':'+port);
     });
+    }, 2000);
 }
-async function main(){
-    var lenofusers=await getpeers();
-    if(lenofusers==0){
-        console.log("no peers found");
-        return;
-    }
-    else{
-        var obtainblocks = await getblocks();
+function main(){
+    getpeers();
+    setTimeout(() => {
+       myLoop()
+    }, 2000);
+    
+    setTimeout(() => {
         obtaintxns();
-    }
+    }, 15000);
+    setTimeout(() => {
+        start_miner();
+    }, 20000);
+    
+    
 }
 //start_miner();
 main()
