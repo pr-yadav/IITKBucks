@@ -60,7 +60,7 @@ pending = {}
 n=0 //The index of block
 urls = [] //The urls of peers
 potential_peers = []
-target=0x00000f0000000000000000000000000000000000000000000000000000000000
+target="00000f0000000000000000000000000000000000000000000000000000000000"
 users = new Map()
 wallet = new Map()
 app.use(bodyParser.json());
@@ -136,9 +136,9 @@ function getblocks(){
                 console.log("All Blocks found");
                 return 0;
             }
-            fs.writeFileSyc('../mined_blocks'+n+'.dat',response.data);
+            fs.writeFileSync('../mined_blocks'+n+'.dat',response.data);
             var tmp=116;
-            var no_of_txn = parseInt(block.toString("hex",tmp,tmp+5),16) //block heaader is of 116 bytes
+            var no_of_txn = parseInt(block.toString("hex",tmp,tmp+4),16) //block heaader is of 116 bytes
             var len_of_txn;
             tmp=120;
             var txn;
@@ -197,14 +197,18 @@ function main(){
 main()
 function start_miner(){
 
-    miner.postMessage(pending);
+    miner.postMessage([pending,n]);
     miner.on('message',msg =>{
         var tmp =n+1;
-        fs.writeFile('./mined_blocks/'+(tmp)+'.dat',msg)
+        fs.writeFile('./mined_blocks/'+(tmp)+'.dat',msg,function (err) {
+            if (err) throw err;
+            console.log('Saved!');
+          }); 
         n++;
-        var no_of_txn = msg.readUInt32BE(116,120)
+        var tmp=116
+        var no_of_txn = parseInt(msg.toString("hex",tmp,tmp+4),16)
         var len_of_txn;
-        var tmp=120;
+        tmp=120;
         for(var i=0;i<no_of_txn;i++){
             len_of_txn=msg.readUInt32BE(tmp,tmp+4)
             addbloc(msg.slice(tmp+4,tmp+4+len_of_txn))
