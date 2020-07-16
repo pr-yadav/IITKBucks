@@ -21,7 +21,7 @@ function createSign(data,privateKey){
     signature = sign.sign({key:privateKey, padding:crypto.constants.RSA_PKCS1_PSS_PADDING,saltLength:32}).toString('hex');
     return signature
 }
-const url ="";
+const url ="http://localhost:3000";
 function start(){
     console.log("Welcome to IITKBucks\nChoose any of the following : \n1. Add alias\n2. Generate Keys\n3. Check Balance\n4. Transfer Funds\n");
     var option = prompt("Choose an option : ")
@@ -35,6 +35,7 @@ function start(){
             console.log("Response status : "+response.statusText);
         })
         .catch((err) => {
+            console.log(err)
             console.log("Error in sending request");
         })
     }
@@ -92,7 +93,7 @@ function start(){
     else if(option == 4){
         var txn = {"inputs" : [],"outputs" : []};
         var buf =Buffer.alloc(0);
-        var output_hash = Buffer.alloc(0);
+        //var output_hash = Buffer.alloc(0);
         var balance =0,amt_given=0;
         var private_key_file = prompt("Enter the file containing private key : ");
         var privateKey=fs.readFileSync('./'+private_key_file,'utf-8');
@@ -114,9 +115,14 @@ function start(){
         .catch((err) => {
             console.log("Error in sending request");
         })
+        setTimeout(() => {
+            
+        
         var no_of_outputs = prompt("Enter no. of outputs : ")
-        output_hash=IntToBytes(no_of_outputs+1,4)
-        for(var i=0 ;i<no_of_outputs;i++){
+        var output_hash=IntToBytes(no_of_outputs+1,4)
+        var i=0
+        for( i=0;i<no_of_outputs;i++){
+            setTimeout(() => {
             console.log("What would you use alias or public key for output\n1. alias")
             var aliasorkey = prompt("2. Public Key")
             var user_key;
@@ -125,6 +131,7 @@ function start(){
                 axios.post (url+"/getPublicKey", {"alias" : user_alias})
                 .then(response => {
                     user_key = response.publicKey;
+                    console.log(user_key)
                 })
                 .catch((err) => {
                     console.log("User not present");
@@ -133,15 +140,20 @@ function start(){
             else{
                 user_key = prompt("Enter the key : ")
             }
+            setTimeout(() => {
             var amt = prompt("Enter the amount for this recipeint : ")
-            amt = Number(amt)
+            
+            var amt_given;
             amt_given=amt_given+amt;
             txn["outputs"].push({
                 "amount": amt,
                 "recipient": user_key
             })
             output_hash=Buffer.concat([output_hash,IntToBytes(amt,8),IntToBytes(Buffer.byteLength(user_key),4),Buffer.from(user_key,'utf-8')])
+            }, 500*(i+1));
+            }, 1000*i);
         }
+        setTimeout(() => {
         var txn_fees = prompt("Please enter the fees : ")
         txn["outputs"].push({
             "amount": balance-amt_given-txn_fees,
@@ -160,6 +172,8 @@ function start(){
         .catch((err) => {
             console.log("Error in sending request");
         })
+        }, 1050*(i));
+        }, 1000);
     }
     else{
         console.log("Please choose a valid option.")

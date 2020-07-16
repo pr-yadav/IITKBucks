@@ -117,26 +117,37 @@ function getpeers() {
     //var i=0;
     function myLoop() {         //  create a loop function
         setTimeout(function() {   //  call a 3s setTimeout when the loop is called
-          var i =getblocks();   //  your code here
-          //i++;                    //  increment the counter
+          var i =  getblocks();   //  your code here
+          //i++;
+          setTimeout(()=> {                   //  increment the counter
           if (i) {           //  if the counter < 10, call the loop function
-            myLoop();             //  ..  again which will trigger another 
-          }                       //  ..  setTimeout()
+            myLoop();
+            console.log("hello")             //  ..  again which will trigger another 
+          }
+          else{
+              console.log(i)
+          }  
+          },1000);                     //  ..  setTimeout()
         }, 2000)
       }
 function getblocks(){
     
     //return true;
     //while(1){
+        var call = setInterval(() => {
+            
+        
+        console.log("hello")
         axios.get (urls[0]+'/getBlock/'+n)
         .then(response => {
             //var block=new Buffer
             var block = response.data
+            console.log(block)
             if(response.status==404){
                 console.log("All Blocks found");
-                return 0;
+                return clearInterval(call);
             }
-            fs.writeFileSync('../mined_blocks'+n+'.dat',response.data);
+            fs.writeFileSync('./mined_blocks/'+n+'.dat',response.data);
             var tmp=116;
             var no_of_txn = parseInt(block.toString("hex",tmp,tmp+4),16) //block heaader is of 116 bytes
             var len_of_txn;
@@ -148,14 +159,18 @@ function getblocks(){
                 tmp=tmp+4+len_of_txn
             }
             
+            console.log("Block added : "+n);
             n++;
         })
         .catch(err =>{
             console.log("All Blocks Found");
-            return 0;
+            return clearInterval(call);
         })
+    }, 2000);
     //}
-    return n;
+    return;
+    //}
+    //return n;
 }
 function obtaintxns(){
     //console.log("hello")
@@ -181,15 +196,16 @@ function obtaintxns(){
 function main(){
     getpeers();
     setTimeout(() => {
-       myLoop()
+       getblocks()
     }, 2000);
     
     setTimeout(() => {
         obtaintxns();
-    }, 15000);
+    }, 10000);
     setTimeout(() => {
         start_miner();
-    }, 20000);
+        console.log("Miner Started")
+    }, 120000);
     
     
 }

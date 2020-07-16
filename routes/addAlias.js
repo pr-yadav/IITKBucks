@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser')
 var addAlias = express.Router();
 const index = require('../index')
+const axios = require('axios')
 
 addAlias.use(bodyParser.json());
 addAlias.use(bodyParser.urlencoded({ extended: false }));

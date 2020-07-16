@@ -14,6 +14,7 @@ getPublicKey.route('/getPublicKey')
         var obj = new Object()
         obj["publicKey"] = users.get(alias);
         //console.log(users.get(alias));
+        console.log(JSON.stringify(obj))
         res.send(JSON.stringify(obj));
     }
     else {
