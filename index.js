@@ -29,7 +29,8 @@ const addAlias = require('./routes/addAlias')
 const getPublicKey = require('./routes/getPublicKey')
 const getUnusedOutputs = require('./routes/getUnusedOutputs');
 
-
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 //Imp. variables and constants
 miner = new Worker('./miner.js',resourceLimits=1024)
 const hostname = 'localhost';
@@ -222,12 +223,13 @@ async function main(){
     
     
 }
-//start_miner();
 main()
+
 function start_miner(){
 
     miner.postMessage([pending,n]);
     miner.on('message',msg =>{
+        miner.terminate()
         var tmp =n;
         fs.writeFile('./mined_blocks/'+(tmp)+'.dat',msg,function (err) {
             if (err) throw err;
@@ -253,7 +255,8 @@ function start_miner(){
                 console.log("Error sending request to : "+url)
             })
         });
-        
+        miner = new Worker('./miner.js',resourceLimits=1024)
+        miner.postMessage([pending,n]);
         start_miner();
     })
 }

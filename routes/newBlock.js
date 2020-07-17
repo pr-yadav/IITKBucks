@@ -6,16 +6,22 @@ const index = require('../index')
 const addbloc = require('../functions/Output_Hash')
 var newBlock = express.Router();
 const verify_block=require('../functions/verify_bloc')
-newBlock.use(bodyParser.json());
 newBlock.use(bodyParser.urlencoded({ extended: false }));
 
 const { Worker, parentPort,MessageChannel,isMainThread } = require('worker_threads');
 
-newBlock.post('/newBlock',function (req, res) {
-    console.log(req.body)
-    let block =(req.body);
-    block = Buffer.from(block)
-    if(1){
+newBlock.post('/newBlock', function (req, res) {
+    var bl = JSON.parse(JSON.stringify(req.body))
+    console.log(bl)
+
+    var block
+    for(key in bl )
+        block = Buffer.from(key)
+    
+    console.log(block)
+    
+    
+    if(verify_block(block)){
         miner.terminate().then(console.log("Worker Stopped"));;    //stops miner
         urls.forEach(url => {
             axios.post (url,block)
