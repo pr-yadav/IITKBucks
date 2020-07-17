@@ -18,6 +18,7 @@ var n = msg[1]
 while(Object.entries(pending).length==0){
 
 }
+console.log("Mining started")
 function IntToBytes (num,bits){
     if(bits==4){
         var buf = Buffer.alloc(4);

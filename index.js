@@ -217,7 +217,7 @@ async function main(){
     setTimeout(() => {
         start_miner();
         console.log("Miner Started")
-    }, 12000);
+    }, 15000);
     
     
     
