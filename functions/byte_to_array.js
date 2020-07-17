@@ -6,13 +6,18 @@ module.exports = function txn_byte_to_array(transaction){
     var Outputs = new Array;
     var no_of_inputs = transaction.readUInt32BE(0,4)
     tmp=4;
+    var obj = { "inputs":[],"outputs":[]}
     for(var i=0;i<no_of_inputs;i++){
         id = transaction.toString("hex", 0+tmp, tmp +32)
         idx = transaction.readUInt32BE(tmp+32,tmp+36)
         sign_length = transaction.readUInt32BE(tmp+36,tmp+40)
         signature = transaction.toString("hex", 40+tmp, tmp +40 + sign_length)
         tmp=tmp+40+sign_length
-        Inputs[i] = new input(id,idx,sign_length,signature);
+        obj["inputs"].push({
+            "transactionId" : id ,
+            "index" : idx ,
+            "signature" : signature 
+        })
     }
     
     var no_of_outputs = transaction.readUInt32BE(tmp,tmp+4)
@@ -22,7 +27,10 @@ module.exports = function txn_byte_to_array(transaction){
         var key_len = transaction.readUInt32BE(tmp+8,tmp+12)
         var key = transaction.toString("utf8", tmp+12, tmp +12 + key_len)
         tmp=tmp+12+key_len
-        Outputs[i] = new output(coins,key_len,key);
+        obj["outputs"].push({
+            "amount" : coins ,
+            "recipient" : key ,
+        })
     }
-    return new Transaction(no_of_inputs,Inputs,no_of_outputs,Outputs)
+    return  obj
 }

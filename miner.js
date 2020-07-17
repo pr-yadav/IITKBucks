@@ -51,7 +51,8 @@ block = Buffer.concat([IntToBytes(i,4),block]);
 var block_head =Buffer.alloc(0);
 var parent_hash
 if(n!=0){
-parent_hash = fs.readFileSync('./mined_blocks/'+n+'.dat');
+    var tmp0=n-1
+parent_hash = fs.readFileSync('./mined_blocks/'+tmp0+'.dat');
 parent_hash=sha256(parent_hash.slice(0,116))
 }
 else{
@@ -73,8 +74,6 @@ while(1){
         break;
     }
     i++;
-    //console.log(time)
-    //console.log(i)
 }
 
 function mined(){

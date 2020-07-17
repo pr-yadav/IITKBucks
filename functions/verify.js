@@ -20,33 +20,39 @@ function IntToBytes (num,bits){
     return buf
 }
 
-module.exports = function verify(transaction) {
+module.exports = async function verify(transaction) {
     const index = require('../index')
     const verify_sign = require('./verify_sign')
     const output_hash = require('./Output_Hash')
     const newtxnoutputhash=require('./newtxnoutputhash')
-    if(n==0)return true;
     for (var input in transaction["inputs"]) {
-        var tmp = input["transaction_Id"]
+        if(n==0)break;
+        var tmp = input["transactionId"]
         if (tmp in unused){
-            if(inputs[i].Index in unused[tmp]) continue;
-            else return false;
+            if(input["index"] in unused[tmp]) continue;
+            else{
+                return false
+            }
         }
         else {
             return false;          
         }
     }
-  
+    
     var req_coins = 0;
     var act_coins = 0;
     for (var input in transaction["inputs"]) {
-        var tmp2 = unused[inputs[i]["transactionId"]][inputs[i]["index"]]["publicKey"]
+        if(n==0)break;
+        var tmp6=input["transactionId"]
+        var tmp7=input["index"]
+        var tmp2 = unused[tmp6][tmp7]["coins"]
         act_coins += tmp2;
     }
     for (var output in transaction["outputs"]) {
         req_coins += output["amount"];
     }
-    if (act_coins >= req_coins+100000){}
+    if(n==0){}
+    else if (act_coins >= req_coins){}
     else {
         return false;
     }
@@ -56,7 +62,7 @@ module.exports = function verify(transaction) {
         var msg = Buffer.alloc(0)
         msg = Buffer.concat([Buffer.from(input.transaction_Id,'hex'),IntToBytes(input.index,4),Buffer.from(newtxnoutputhash(txn),'hex')])
         var public = unused.inputs[i].Transaction_ID.Index.public_key;
-        var sign = Buffer.from(unused[input["transactionId"]][input["index"]]["Publickey"],'hex')
+        var sign = Buffer.from(input["signature"],'hex')
         if(verify_sign(sign,msg,public)){
         }
         else {

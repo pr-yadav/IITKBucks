@@ -131,7 +131,7 @@ function start(){
                 var user_alias = prompt("Enter the alias : ");
                 axios.post (url+"/getPublicKey", {"alias" : user_alias})
                 .then(response => {
-                    user_key = response.publicKey;
+                    user_key = response.data.publicKey;
                     console.log(user_key)
                 })
                 .catch((err) => {
