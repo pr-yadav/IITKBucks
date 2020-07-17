@@ -60,7 +60,7 @@ pending = {}
 n=0 //The index of block
 urls = [] //The urls of peers
 potential_peers = []
-target="00000f0000000000000000000000000000000000000000000000000000000000"
+target="0000004000000000000000000000000000000000000000000000000000000000"
 users = new Map()
 wallet = new Map()
 app.use(bodyParser.json());
@@ -84,8 +84,10 @@ function getpeers() {
     potential_peers.push(peer)
     //console.log("hello")
     //return true;
-    var block = JSON.stringify({url: "http://987a5160bea7.ngrok.io"})
-    for(var person of potential_peers){
+    var block = JSON.stringify({url: "http://d9267c5a0d45.ngrok.io"})
+    for(var i=0;i<potential_peers.length;i++){
+        var person=potential_peers[i]
+    
         //console.log("hello")
             axios.post (person+"/newPeer",block)
             .then(response => {
@@ -104,32 +106,23 @@ function getpeers() {
                 }
             })
             .catch((err) => {
-                console.log("Error in sending request to : "+peer);
-                //console.log(err);
+                console.log("Error in sending request to : "+person);
+                axios.get(person+'/getPeers')
+                .then(response => {
+                    potential_peers.push(response.data.peers);
+                    //console.log(response.data.peers)
+                })
+                .catch((err)=>{
+                    console.log(err)
+                })
             })
         
             //console.log("hello")
         if(urls.length >3){return urls.length;}
-    }
+        }
     return urls.length
     
 }
-    //var i=0;
-    function myLoop() {         //  create a loop function
-        setTimeout(function() {   //  call a 3s setTimeout when the loop is called
-          var i =  getblocks();   //  your code here
-          //i++;
-          setTimeout(()=> {                   //  increment the counter
-          if (i) {           //  if the counter < 10, call the loop function
-            myLoop();
-            console.log("hello")             //  ..  again which will trigger another 
-          }
-          else{
-              console.log(i)
-          }  
-          },1000);                     //  ..  setTimeout()
-        }, 2000)
-      }
 function getblocks(){
     
     //return true;
@@ -137,12 +130,14 @@ function getblocks(){
         var call = setInterval(() => {
             
         
-        console.log("hello")
+        //console.log("hello")
         axios.get (urls[0]+'/getBlock/'+n)
         .then(response => {
+
             //var block=new Buffer
-            var block = response.data
-            console.log(block)
+            var b = response.data
+            var block = Buffer.from(b)
+            //console.log(block)
             if(response.status==404){
                 console.log("All Blocks found");
                 return clearInterval(call);
@@ -201,7 +196,7 @@ function main(){
     
     setTimeout(() => {
         obtaintxns();
-    }, 10000);
+    }, 110000);
     setTimeout(() => {
         start_miner();
         console.log("Miner Started")

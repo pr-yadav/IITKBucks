@@ -87,6 +87,7 @@ function start(){
             })
             .catch((err) => {
                 console.log("Error in sending request");
+                console.log(err)
             })
         }
     }
@@ -171,6 +172,7 @@ function start(){
         })
         .catch((err) => {
             console.log("Error in sending request");
+            console.log(err)
         })
         }, 1050*(i));
         }, 1000);

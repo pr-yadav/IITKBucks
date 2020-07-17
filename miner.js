@@ -57,7 +57,7 @@ parent_hash=sha256(parent_hash.slice(0,116))
 else{
     parent_hash="0000000000000000000000000000000000000000000000000000000000000000"
 }
-var target="00000f0000000000000000000000000000000000000000000000000000000000"
+var target="0000004000000000000000000000000000000000000000000000000000000000"
 block_head=Buffer.concat([block_head,IntToBytes(n,4),Buffer.from(parent_hash,"hex"),Buffer.from(sha256(block),"hex"),Buffer.from(target,"hex")]);
 
 var result1=Buffer.alloc(0)

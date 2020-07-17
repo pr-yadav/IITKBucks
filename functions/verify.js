@@ -22,9 +22,8 @@ function IntToBytes (num,bits){
 
 module.exports = function verify(transaction) {
     const index = require('../index')
-    const byte_to_array = require('./functions/byte_to_array')
-    const verify_sign = require('./functions/verify_sign')
-    const output_hash = require('./functions/output_hash')
+    const verify_sign = require('./verify_sign')
+    const output_hash = require('./Output_Hash')
     const newtxnoutputhash=require('./newtxnoutputhash')
     if(n==0)return true;
     for (var input in transaction["inputs"]) {
@@ -47,7 +46,7 @@ module.exports = function verify(transaction) {
     for (var output in transaction["outputs"]) {
         req_coins += output["amount"];
     }
-    if (act_coins >= req_coins){}
+    if (act_coins >= req_coins+100000){}
     else {
         return false;
     }
