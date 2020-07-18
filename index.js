@@ -28,6 +28,7 @@ const newTransaction = require('./routes/newTransaction');
 const addAlias = require('./routes/addAlias')
 const getPublicKey = require('./routes/getPublicKey')
 const getUnusedOutputs = require('./routes/getUnusedOutputs');
+const { worker } = require('cluster');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -59,7 +60,27 @@ pending = {}
 // }
 n=0 //The index of block
 urls = [] //The urls of peers
-potential_peers = ["https://iitkbucks.pclub.in"]
+potential_peers =  [
+    "https://74525f0cb7d0.ngrok.io",
+    "http://0874d9468a7d.ngrok.io",
+    "https://iitkbucks.pclub.in",
+    "http://dd1e805d83b7.ngrok.io",
+    "https://1ac9c6a5055a.ngrok.io",
+        "http://0874d9468a7d.ngrok.io",
+        "http://0874d9468a7d.ngrok.io",
+        "https://74525f0cb7d0.ngrok.io",
+        "http://dd1e805d83b7.ngrok.io",
+        "https://74525f0cb7d0.ngrok.io",
+        "http://d9d186ee9e23.ngrok.io",
+        "http://0874d9468a7d.ngrok.io",
+        "http://542e3ce6efe3.ngrok.io",
+        "https://cc3f5a355a74.ngrok.io"
+
+    ]
+
+
+
+
 target="0000004000000000000000000000000000000000000000000000000000000000"
 users = new Map()
 wallet = new Map()
@@ -79,7 +100,7 @@ app.use('/',getUnusedOutputs)
 async function getpeers(url)
 {
     await axios.post(url + '/newPeer', {
-    url : "http://96496fa83f4b.ngrok.io"
+    url : "http://a025ca779601.ngrok.io"
     })
     .then( response => {
         if(response.status === 200)
@@ -90,7 +111,7 @@ async function getpeers(url)
         }
     })
     .catch( async (err) => {
-        console.log(err)
+        //console.log(err)
         await axios.get (url + '/getPeers')
         .then(response => {
             var peers = response.data.peers;
@@ -158,7 +179,7 @@ async function getblocksn(){
     
 }
 async function obtaintxns(){
-    await axios.get(potential_peers[0]+'/getPendingTransactions')
+    await axios.get(urls[0]+'/getPendingTransactions')
     .then(response =>{
         console.log("Obtaining Pending Transactions")
         var tmp = response.data
@@ -214,11 +235,11 @@ async function main(){
     
     setTimeout(() => {
         obtaintxns();
-    }, 10000);
+    }, 20000);
     setTimeout(() => {
         start_miner();
         console.log("Miner Started")
-    }, 15000);
+    }, 25000);
     
     
     

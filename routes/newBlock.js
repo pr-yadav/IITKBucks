@@ -6,18 +6,13 @@ const index = require('../index')
 const addbloc = require('../functions/Output_Hash')
 var newBlock = express.Router();
 const verify_block=require('../functions/verify_bloc')
-newBlock.use(bodyParser.urlencoded({ extended: false }));
-
+newBlock.use(bodyParser.raw({limit:1000000, type:'application/octet-stream'}));
+var binaryParser = bodyParser.raw({limit:1000000, type:'application/octet-stream'});
 const { Worker, parentPort,MessageChannel,isMainThread } = require('worker_threads');
 
-newBlock.post('/newBlock', function (req, res) {
-    var bl = JSON.parse(JSON.stringify(req.body))
-    console.log(bl)
-
-    var block
-    for(key in bl )
-        block = Buffer.from(key)
-    
+newBlock.post('/newBlock',binaryParser, (req, res) => {
+        //const image = req.params.image;
+    let block = req.body;
     console.log(block)
     
     
@@ -26,11 +21,11 @@ newBlock.post('/newBlock', function (req, res) {
         urls.forEach(url => {
             axios.post (url,block)
                 .then(response => {
-                   console.log("Block sent to : "+peer);
+                   console.log("Block sent to : "+url);
                    console.log("Response status by peer : "+response.status);
                 })
                 .catch((err) => {
-                    console.log("Error in sending request to : "+peer);
+                    console.log("Error in sending request to : "+url);
                     console.log(err);
                 })
        })
@@ -42,7 +37,7 @@ newBlock.post('/newBlock', function (req, res) {
             addbloc(block.slice(tmp+4,tmp+4+len_of_txn))
             tmp=tmp+4+len_of_txn
        }
-        fs.writeFile('../mined_blocks'+n+'.dat',block);
+        fs.writeFileSync('../mined_blocks'+n+'.dat',block);
         res.statusCode = 200
         res.setHeader('Content-Type', 'text/plain');
         res.end("Block added");
@@ -56,6 +51,7 @@ newBlock.post('/newBlock', function (req, res) {
     }
     miner = new Worker('./miner.js',resourceLimits=1024)
     miner.postMessage([pending,n]);
+    
 })
 
 module.exports = newBlock
